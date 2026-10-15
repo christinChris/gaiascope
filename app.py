@@ -286,6 +286,7 @@ f_status   = solara.reactive("")
 f_basemap  = solara.reactive("Google satellite")
 f_version  = solara.reactive(0)
 f_view     = solara.reactive("Map")
+f_show     = solara.reactive(True)
 
 
 def flood_map():
@@ -295,10 +296,15 @@ def flood_map():
                  position="bottomright")
     r = f_result.value
     if r is not None:
-        if not r["event"]:                     # radar images: in the list, off at start
-            m.addLayer(r["before"], RADAR_VIS, "Before · radar VV", False)
-            m.addLayer(r["after"], RADAR_VIS, "After · radar VV", False)
-        m.addLayer(r["mask"], {"palette": [FLOOD_COLOR]}, "Flooded area")
+        flood = r["mask"].visualize(palette=[FLOOD_COLOR])
+        if r["event"]:                                   # events: just the water
+            m.addLayer(flood, {}, "Flooded area")
+        else:                                            # your own: swipe, like BurnScope
+            right = r["after"].visualize(**RADAR_VIS)
+            if f_show.value:
+                right = right.blend(flood)
+            add_swipe(m, r["before"], RADAR_VIS, right, {},
+                      "Before · radar VV", "After · radar VV + flood")
         add_outline(m, r["area"])
         fit_view(m, r["box"])
     return m, base
@@ -306,7 +312,7 @@ def flood_map():
 
 @solara.component
 def FloodScope():
-    m, base = solara.use_memo(flood_map, [f_version.value])
+    m, base = solara.use_memo(flood_map, [f_version.value, f_show.value])
 
     def run(geom, before_dates, after_dates, event):
         try:
@@ -354,6 +360,7 @@ def FloodScope():
                 date_inputs("Before", f_b_start, f_b_end)
                 date_inputs("After", f_a_start, f_a_end)
                 solara.SliderFloat("VV threshold (dB)", value=f_thr, min=-25.0, max=-10.0, step=0.5)
+                solara.Checkbox(label="Show flooded area on the after side", value=f_show)
                 with solara.Row():
                     solara.Button("Map flooded area", on_click=analyze, color="#0064C8",
                                   disabled=busy(f_status))
@@ -494,8 +501,8 @@ def index_map():
     r = i_result.value
     if r is not None:
         vis = index_vis(r["key"])
-        m.addLayer(r["image"], RGB_VIS, f"{r['sensor']} · true colour", False)
-        m.addLayer(r["index"], vis, r["key"])
+        add_swipe(m, r["image"], RGB_VIS, r["index"], vis,
+                  f"{r['sensor']} · true colour", r["key"])
         m.add_colorbar(vis_params=vis, label=f"{r['key']} · {INDICES[r['key']]['name']}",
                        position="bottomright")
         add_outline(m, r["area"])
@@ -726,7 +733,7 @@ STEPS = [("1", "Draw an area", "Use the ■ tool on the map, or open a major eve
 
 @solara.component
 def Home():
-    with solara.Column(style={"max-width": "1100px", "margin": "0 auto", "padding": "24px 8px"}):
+    with solara.Column(style={"max-width": "1300px", "margin": "0 auto", "padding": "24px 8px"}):
         solara.Text("EARTH OBSERVATION · HAZARD MAPPING",
                     style={"letter-spacing": "0.12em", "font-size": "13px", "color": "#0F7A62",
                            "font-weight": "600"})
