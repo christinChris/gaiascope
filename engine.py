@@ -9,6 +9,9 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")              # draw charts in memory, never open a window
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+from indices import SENSORS, INDICES
 
 
 # =====================================================================
@@ -358,3 +361,76 @@ def droughtscope(aoi, dates, tvdi_thr=0.7, bin_width=0.05, min_count=50):
             "share": total / valid * 100,
             "groups": groups,
             "table": lc_table(groups) if groups else None}
+
+
+# =====================================================================
+# Part 5 · 🌈 IndexScope (spectral indices from Sentinel-2 or Landsat)
+# =====================================================================
+GENERIC = ["BLUE", "GREEN", "RED", "NIR", "SWIR1", "SWIR2"]
+
+
+def landsat_clear(img):
+    """Hide dilated cloud (bit 1), cloud (3), shadow (4) and snow (5)."""
+    qa = img.select("QA_PIXEL")
+    return img.updateMask(qa.bitwiseAnd(0b111010).eq(0))
+
+
+def sensor_collection(sensor, aoi, start, end, max_cloud=40):
+    """Cloud-free images, in reflectance (0–1), with GENERIC band names."""
+    real = [SENSORS[sensor][b] for b in GENERIC]
+    if sensor == "Sentinel-2":
+        col = (ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+               .filterBounds(aoi).filterDate(start, end)
+               .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", max_cloud))
+               .map(s2_clear))
+        return col.map(lambda img: img.select(real, GENERIC).divide(10000))
+    collection_id = {"Landsat 8": "LANDSAT/LC08/C02/T1_L2",
+                     "Landsat 9": "LANDSAT/LC09/C02/T1_L2"}[sensor]
+    col = (ee.ImageCollection(collection_id)
+           .filterBounds(aoi).filterDate(start, end)
+           .filter(ee.Filter.lt("CLOUD_COVER", max_cloud))
+           .map(landsat_clear))
+    return col.map(lambda img: img.select(real, GENERIC).multiply(0.0000275).add(-0.2))
+
+
+def pick(stats, suffix):
+    """Find a value in a reduceRegion result by the end of its name (e.g. '_mean')."""
+    return next((v for k, v in stats.items() if k.endswith(suffix)), None)
+
+
+def index_histogram(values, spec, name):
+    cmap = mcolors.LinearSegmentedColormap.from_list("index", spec["palette"])
+    lo, hi = spec["min"], spec["max"]
+    fig, ax = plt.subplots(figsize=(5, 3))
+    _, bins, patches = ax.hist(np.clip(values, lo, hi), bins=40, range=(lo, hi))
+    for patch, left in zip(patches, bins[:-1]):
+        patch.set_facecolor(cmap((left - lo) / (hi - lo)))   # each bar in its map colour
+    ax.set_xlabel(name)
+    ax.set_ylabel("Pixels (sample)")
+    return tidy(fig, ax)
+
+
+def indexscope(aoi, sensor, index, start, end):
+    # 1. Cloud-free median composite
+    col = sensor_collection(sensor, aoi, start, end)
+    n = col.size().getInfo()
+    if n == 0:
+        raise ValueError(f"No clear {sensor} images for these dates. Try a wider window.")
+    img = col.median().clip(aoi)
+
+    # 2. The index: the same equation for every satellite
+    spec = INDICES[index]
+    idx = img.expression(spec["formula"], {b: img.select(b) for b in GENERIC}).rename(index)
+
+    # 3. Numbers: mean and percentiles in ONE reduction, plus a sample for the histogram
+    scale = 20 if sensor == "Sentinel-2" else 30
+    reducer = ee.Reducer.mean().combine(ee.Reducer.percentile([5, 50, 95]), sharedInputs=True)
+    stats = idx.reduceRegion(reducer=reducer, geometry=aoi, scale=scale,
+                             maxPixels=1e10, tileScale=4).getInfo()
+    values = (idx.sample(region=aoi, scale=scale, numPixels=5000, seed=1)
+              .aggregate_array(index).getInfo())
+
+    return {"image": img, "index": idx, "n": n, "scale": scale,
+            "mean": pick(stats, "_mean"), "p5": pick(stats, "_p5"),
+            "p50": pick(stats, "_p50"), "p95": pick(stats, "_p95"),
+            "values": values}

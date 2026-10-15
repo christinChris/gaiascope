@@ -16,6 +16,7 @@ import ipyleaflet
 
 import engine as eng
 from events import FIRE_EVENTS, FLOOD_EVENTS
+from indices import SENSORS, SENSOR_INFO, INDICES, SOURCES
 
 
 # =====================================================================
@@ -466,6 +467,128 @@ def DroughtScope():
 
 
 # =====================================================================
+# Part 5b · 🌈 IndexScope
+# =====================================================================
+i_sensor   = solara.reactive("Sentinel-2")
+i_index    = solara.reactive("NDVI")
+i_start    = solara.reactive("2024-06-01")
+i_end      = solara.reactive("2024-06-30")
+i_area     = solara.reactive(ee.Geometry.Rectangle([21.80, 39.30, 22.10, 39.50]))
+i_result   = solara.reactive(None)
+i_status   = solara.reactive("")
+i_basemap  = solara.reactive("Google satellite")
+i_version  = solara.reactive(0)
+i_view     = solara.reactive("Map")
+
+RGB_VIS = {"bands": ["RED", "GREEN", "BLUE"], "min": 0, "max": 0.3}
+
+
+def index_vis(key):
+    spec = INDICES[key]
+    return {"min": spec["min"], "max": spec["max"], "palette": spec["palette"]}
+
+
+def index_map():
+    m, base = new_map(center=(39.4, 21.95), zoom=10)
+    base.url = BASEMAPS[i_basemap.value]
+    r = i_result.value
+    if r is not None:
+        vis = index_vis(r["key"])
+        m.addLayer(r["image"], RGB_VIS, f"{r['sensor']} · true colour", False)
+        m.addLayer(r["index"], vis, r["key"])
+        m.add_colorbar(vis_params=vis, label=f"{r['key']} · {INDICES[r['key']]['name']}",
+                       position="bottomright")
+        add_outline(m, r["area"])
+        fit_view(m, r["box"])
+    return m, base
+
+
+@solara.component
+def IndexCard(key):
+    """What the index is: name, equation, how to read it, reference."""
+    spec = INDICES[key]
+    reading = "\n".join(f"- {line.replace('>', '&gt;')}" for line in spec["reading"])
+    solara.Markdown(f"**{key} · {spec['name']}**\n\n"
+                    f"`{key} = {spec['formula']}`\n\n"
+                    f"{spec['about']}\n\n"
+                    f"**How to read it**\n\n{reading}\n\n"
+                    f"*Reference: {spec['reference']}*\n\n"
+                    f"{SOURCES}")
+
+
+@solara.component
+def IndexScope():
+    m, base = solara.use_memo(index_map, [i_version.value])
+
+    def run(geom, sensor, key, start, end):
+        try:
+            r = eng.indexscope(geom, sensor, key, start, end)
+            r.update(area=geom, box=box_of(geom), sensor=sensor, key=key)
+            r["chart"] = eng.index_histogram(r["values"], INDICES[key], key) if r["values"] else None
+            i_result.value = r
+            i_view.value = "Map"
+            i_version.value += 1
+            i_status.value = f"✅ Done. {sensor} images used: {r['n']}."
+        except Exception as e:
+            i_status.value = f"⚠️ {e}"
+
+    def analyze():
+        use_drawn_area(m, i_area)
+        in_background(i_status, run, i_area.value, i_sensor.value, i_index.value,
+                      i_start.value, i_end.value)
+
+    def clear_area():
+        i_result.value = None
+        i_status.value = ""
+        i_version.value += 1
+
+    def set_basemap(name):
+        i_basemap.value = name
+        base.url = BASEMAPS[name]
+
+    with solara.Columns([1, 3]):
+        with solara.Column():
+            solara.Select("Satellite", value=i_sensor, values=list(SENSORS))
+            solara.Text(SENSOR_INFO[i_sensor.value], style={"font-size": "13px", "opacity": "0.75"})
+            solara.Select("Index", value=i_index, values=list(INDICES))
+            solara.Text(INDICES[i_index.value]["name"], style={"font-size": "13px", "opacity": "0.75"})
+            date_inputs("Period", i_start, i_end)
+            solara.Text("Draw a box on the map (■ tool), or keep the default area.")
+            with solara.Row():
+                solara.Button("Map index", on_click=analyze, color="#0E7490",
+                              disabled=busy(i_status))
+                solara.Button("Clear", on_click=clear_area, outlined=True)
+            solara.Select("Basemap", value=i_basemap.value, values=list(BASEMAPS),
+                          on_value=set_basemap)
+            show_status(i_status.value)
+
+        r = i_result.value
+
+        def stats():
+            solara.Markdown(
+                f"| | {r['key']} |\n|---|---|\n"
+                f"| Mean | {r['mean']:.3f} |\n| Median | {r['p50']:.3f} |\n"
+                f"| 5th percentile | {r['p5']:.3f} |\n| 95th percentile | {r['p95']:.3f} |\n"
+                f"| Images in composite | {r['n']} |\n| Pixel size | {r['scale']} m |")
+            if r["chart"] is not None:
+                solara.FigureMatplotlib(r["chart"])
+
+        with solara.Column():
+            views = ["Map", "Index info"] + (["Statistics"] if r else [])
+            with solara.Row(style={"align-items": "center", "gap": "24px"}):
+                solara.ToggleButtonsSingle(value=i_view, values=views)
+                if r and r["mean"] is not None:
+                    solara.Markdown(f"### {r['key']} · mean {r['mean']:.2f}")
+            if i_view.value == "Index info":
+                with solara.Column(style={"max-width": "760px"}):
+                    IndexCard(i_index.value)
+            elif i_view.value == "Statistics" and r:
+                stats()
+            else:
+                solara.display(m)
+
+
+# =====================================================================
 # Part 6 · About + the front door (Page)
 # =====================================================================
 ABOUT = """
@@ -592,6 +715,8 @@ CARDS = [
      "Sentinel-1 radar (VV), which sees through clouds. Change detection before vs after.", True),
     ("DroughtScope", "#B45309", "Vegetation dryness",
      "Landsat 8 + 9 · the Ts/VI triangle and the TVDI index, from wet (0) to dry (1).", False),
+    ("IndexScope", "#0E7490", "Spectral indices",
+     "Sentinel-2, Landsat 8 or 9 · NDVI, NDWI, NBR and more, with equations and legends.", False),
 ]
 
 STEPS = [("1", "Draw an area", "Use the ■ tool on the map, or open a major event."),
@@ -605,17 +730,17 @@ def Home():
         solara.Text("EARTH OBSERVATION · HAZARD MAPPING",
                     style={"letter-spacing": "0.12em", "font-size": "13px", "color": "#0F7A62",
                            "font-weight": "600"})
-        solara.Markdown("#Explore floods, fires, and droughts through satellite data")
+        solara.Markdown("# Map and visualize what changed on the ground.")
         solara.Markdown("Draw an area, pick two dates, and compare satellite images side by side. "
                         "GaiaScope maps **burnt land**, **floods** and **drought**, then tells you "
                         "how much area was affected.")
 
-        with solara.Columns([1, 1, 1]):
+        with solara.Columns([1, 1, 1, 1]):
             for name, color, subtitle, text, has_events in CARDS:
                 with solara.Card(name, subtitle=subtitle,
                                  style={"border-top": f"4px solid {color}", "height": "100%"}):
                     solara.Markdown(text)
-                    with solara.Row():
+                    with solara.Row(style={"flex-wrap": "wrap", "gap": "8px"}):
                         solara.Button("Map your own", color=color,
                                       on_click=lambda n=name: go(n))
                         if has_events:
@@ -648,7 +773,7 @@ dark   = solara.reactive(False)         # the app starts in light mode
 module = solara.reactive("Home")         # which page is open
 
 MODULES = {"Home": Home, "BurnScope": BurnScope, "FloodScope": FloodScope,
-           "DroughtScope": DroughtScope, "About": About}
+           "DroughtScope": DroughtScope, "IndexScope": IndexScope, "About": About}
 
 
 def apply_theme():
