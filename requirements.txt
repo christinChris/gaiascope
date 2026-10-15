@@ -1,0 +1,7 @@
+earthengine-api
+geemap
+solara
+ipyleaflet
+pandas
+numpy
+matplotlib
