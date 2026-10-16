@@ -7,14 +7,17 @@ import math
 import threading
 import ee
 
-# 🔥 Oven first: Earth Engine must be on BEFORE the kitchen is imported
+# Earth Engine must be on BEFORE the kitchen is imported
 ee.Initialize(project=os.environ.get("EE_PROJECT", "ee-christilekka"))
 
 import solara
 import geemap
-import ipyleaflet
+import ipyleaflet 
 
 import engine as eng
+from pathlib import Path
+
+LOGO = Path(__file__).parent / "logo.png"     # the logo sits next to app.py
 from events import FIRE_EVENTS, FLOOD_EVENTS
 from indices import SENSORS, SENSOR_INFO, INDICES, SOURCES
 
@@ -162,7 +165,6 @@ b_area     = solara.reactive(ee.Geometry.Rectangle([23.75, 37.98, 24.10, 38.32])
 b_result   = solara.reactive(None)
 b_status   = solara.reactive("")
 b_basemap  = solara.reactive("Google satellite")
-b_show     = solara.reactive(True)
 b_version  = solara.reactive(0)        # +1 → a fresh map is built
 b_view     = solara.reactive("Map")    # "Map" or "Statistics"
 
@@ -176,12 +178,10 @@ def burn_map():
     if r is not None:
         if r["event"]:                                   # events: just the scar
             m.addLayer(r["severity"], SEV_VIS, "Burn severity")
-        else:                                            # your own: swipe
-            right = r["after"].visualize(**S2_FALSE)
-            if b_show.value:
-                right = right.blend(r["severity"].visualize(**SEV_VIS))
-            add_swipe(m, r["before"], S2_TRUE, right, {},
-                      "Before · true color", "After · false color + burnt")
+        else:                                            # your own: 3 layers
+            add_swipe(m, r["before"], S2_TRUE, r["after"], S2_FALSE,
+                      "Before · true color", "After · false color")
+            m.addLayer(r["severity"], SEV_VIS, "Burn scar")   # on top, can be switched off
         add_outline(m, r["area"])
         fit_view(m, r["box"])
     return m, base
@@ -189,7 +189,7 @@ def burn_map():
 
 @solara.component
 def BurnScope():
-    m, base = solara.use_memo(burn_map, [b_version.value, b_show.value])
+    m, base = solara.use_memo(burn_map, [b_version.value])
 
     def run(geom, before_dates, after_dates, event):
         try:
@@ -245,7 +245,6 @@ def BurnScope():
                 date_inputs("Before", b_b_start, b_b_end)
                 date_inputs("After", b_a_start, b_a_end)
                 solara.SliderFloat("dNBR threshold", value=b_thr, min=0.10, max=0.66, step=0.01)
-                solara.Checkbox(label="Show burnt area on the after side", value=b_show)
                 with solara.Row():
                     solara.Button("Map burnt area", on_click=analyze, color="#C2410C",
                                   disabled=busy(b_status))
@@ -286,7 +285,6 @@ f_status   = solara.reactive("")
 f_basemap  = solara.reactive("Google satellite")
 f_version  = solara.reactive(0)
 f_view     = solara.reactive("Map")
-f_show     = solara.reactive(True)
 
 
 def flood_map():
@@ -299,12 +297,10 @@ def flood_map():
         flood = r["mask"].visualize(palette=[FLOOD_COLOR])
         if r["event"]:                                   # events: just the water
             m.addLayer(flood, {}, "Flooded area")
-        else:                                            # your own: swipe, like BurnScope
-            right = r["after"].visualize(**RADAR_VIS)
-            if f_show.value:
-                right = right.blend(flood)
-            add_swipe(m, r["before"], RADAR_VIS, right, {},
-                      "Before · radar VV", "After · radar VV + flood")
+        else:                                            # your own: 3 layers, like BurnScope
+            add_swipe(m, r["before"], RADAR_VIS, r["after"], RADAR_VIS,
+                      "Before · radar VV", "After · radar VV")
+            m.addLayer(flood, {}, "Flooded area")        # on top, can be switched off
         add_outline(m, r["area"])
         fit_view(m, r["box"])
     return m, base
@@ -312,7 +308,7 @@ def flood_map():
 
 @solara.component
 def FloodScope():
-    m, base = solara.use_memo(flood_map, [f_version.value, f_show.value])
+    m, base = solara.use_memo(flood_map, [f_version.value])
 
     def run(geom, before_dates, after_dates, event):
         try:
@@ -360,7 +356,6 @@ def FloodScope():
                 date_inputs("Before", f_b_start, f_b_end)
                 date_inputs("After", f_a_start, f_a_end)
                 solara.SliderFloat("VV threshold (dB)", value=f_thr, min=-25.0, max=-10.0, step=0.5)
-                solara.Checkbox(label="Show flooded area on the after side", value=f_show)
                 with solara.Row():
                     solara.Button("Map flooded area", on_click=analyze, color="#0064C8",
                                   disabled=busy(f_status))
@@ -670,9 +665,19 @@ TVDI runs from **0** (wet, cool) to **1** (dry, stressed). Pixels at or above th
 **Keep in mind.** The triangle needs enough land with a wide range of NDVI values.
 Mountains are cooler with height, which TVDI can mistake for moisture.
 
-*Key reference:* Sandholt, I., Rasmussen, K. & Andersen, J. (2002). A simple
-interpretation of the surface temperature/vegetation index space for assessment of
-surface moisture status. *Remote Sensing of Environment*, 79(2–3), 213–224.
+*Key references:*
+
+- Carlson, T. N., Gillies, R. R. & Perry, E. M. (1994). A method to make use of thermal
+  infrared temperature and NDVI measurements to infer surface soil water content and
+  fractional vegetation cover. *Remote Sensing Reviews*, 9(1–2), 161–173.
+- Sandholt, I., Rasmussen, K. & Andersen, J. (2002). A simple interpretation of the surface
+  temperature/vegetation index space for assessment of surface moisture status.
+  *Remote Sensing of Environment*, 79(2–3), 213–224.
+- Carlson, T. (2007). An overview of the "triangle method" for estimating surface
+  evapotranspiration and soil moisture from satellite imagery. *Sensors*, 7(8), 1612–1629.
+- Petropoulos, G., Carlson, T. N., Wooster, M. J. & Islam, S. (2009). A review of Ts/VI remote
+  sensing based methods for the retrieval of land surface energy fluxes and soil surface
+  moisture. *Progress in Physical Geography*, 33(2), 224–250.
 
 ---
 
@@ -734,10 +739,11 @@ STEPS = [("1", "Draw an area", "Use the ■ tool on the map, or open a major eve
 @solara.component
 def Home():
     with solara.Column(style={"max-width": "1300px", "margin": "0 auto", "padding": "24px 8px"}):
-        solara.Text("EARTH OBSERVATION · HAZARD MAPPING",
+        solara.Image(str(LOGO), width="220px")
+        solara.Text("EARTH OBSERVATION · ENVIRONMENTAL MAPPING",
                     style={"letter-spacing": "0.12em", "font-size": "13px", "color": "#0F7A62",
                            "font-weight": "600"})
-        solara.Markdown("# Map and visualize what changed on the ground.")
+        solara.Markdown("# Explore floods, fires and droughts through satellite data")
         solara.Markdown("Draw an area, pick two dates, and compare satellite images side by side. "
                         "GaiaScope maps **burnt land**, **floods** and **drought**, then tells you "
                         "how much area was affected.")

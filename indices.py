@@ -97,8 +97,9 @@ INDICES = {
         "reading": ["< 0: dry vegetation or bare soil",
                     "0 – 0.3: moderate canopy water",
                     "> 0.3: high canopy water"],
-        "reference": "Gao, B. (1996). NDWI — A normalized difference water index for remote sensing of "
-                     "vegetation liquid water from space. Remote Sensing of Environment, 58, 257–266.",
+        "reference": "Wilson, E. H. & Sader, S. A. (2002). Detection of forest harvest type using multiple "
+                     "dates of Landsat TM imagery. Remote Sensing of Environment, 80, 385–396. "
+                     "(Concept: Gao, B. (1996), Remote Sensing of Environment, 58, 257–266.)",
     },
     "NBR": {
         "name": "Normalized Burn Ratio",
