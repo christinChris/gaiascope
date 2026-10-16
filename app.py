@@ -771,8 +771,7 @@ def Home():
 
 CSS = """
 .v-app-bar.v-toolbar {
-    background: linear-gradient(90deg, rgba(15,122,98,1) 0%, rgba(15,122,98,0.75) 50%,
-                                rgba(15,122,98,0.45) 100%) !important;
+    background: linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 15%, #020C45 65%, #020C45 100%) !important;
 }
 .gaia-table table { border-collapse: collapse; color: inherit; }
 .theme--dark :is(p, h1, h2, h3, h4, li, td, th, strong, em, code):not(.leaflet-container *) {
@@ -789,8 +788,8 @@ MODULES = {"Home": Home, "BurnScope": BurnScope, "FloodScope": FloodScope,
 
 
 def apply_theme():
-    solara.lab.theme.themes.light.primary = "#0F7A62"
-    solara.lab.theme.themes.dark.primary = "#0F7A62"
+    solara.lab.theme.themes.light.primary = "#020C45"
+    solara.lab.theme.themes.dark.primary = "#020C45"
     solara.lab.theme.dark = dark.value
 
 
@@ -800,9 +799,9 @@ def Page():
     solara.Style(CSS)
     solara.Title("GaiaScope")
     with solara.AppBarTitle():
-        with solara.Row(style={"align-items": "center", "gap": "10px"}):
+        with solara.Row(style={"align-items": "center", "gap": "10px", "background": "transparent"}):
             solara.Image(str(ICON), width="56px")
-            solara.Text("GaiaScope")
+            solara.Text("GaiaScope", style={"color": "#020C45", "font-weight": "600"})
     with solara.AppBar():
         solara.Switch(label="Dark mode", value=dark)
     with solara.Column():
