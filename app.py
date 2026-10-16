@@ -721,7 +721,7 @@ def go(name, mode="Map your own"):
 
 
 CARDS = [
-    ("BurnScope", "#C2410C", "Burnt area and burn severity",
+    ("BurnScope", "#C21E0C", "Burnt area and burn severity",
      "Sentinel-2 · dNBR. Before in true colour, after in false colour, scar by severity class.", True),
     ("FloodScope", "#0064C8", "flooded area",
      "Sentinel-1 radar (VV), which sees through clouds. Change detection before vs after.", True),
