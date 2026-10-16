@@ -727,7 +727,7 @@ CARDS = [
      "Sentinel-1 radar (VV), which sees through clouds. Change detection before vs after.", True),
     ("DroughtScope", "#B45309", "Vegetation dryness",
      "Landsat 8 + 9 · the Ts/VI triangle and the TVDI index, from wet (0) to dry (1).", False),
-    ("IndexScope", "#0E7490", "Spectral indices",
+    ("IndexScope", "#26900E", "Spectral indices",
      "Sentinel-2, Landsat 8 or 9 · NDVI, NDWI, NBR and more, with equations and legends.", False),
 ]
 
