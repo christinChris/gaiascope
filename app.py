@@ -12,14 +12,14 @@ ee.Initialize(project=os.environ.get("EE_PROJECT", "ee-christilekka"))
 
 import solara
 import geemap
-import ipyleaflet 
-
-import engine as eng
+import ipyleaflet
 from pathlib import Path
 
-LOGO = Path(__file__).parent / "logo.png"     # the logo sits next to app.py
+import engine as eng
 from events import FIRE_EVENTS, FLOOD_EVENTS
 from indices import SENSORS, SENSOR_INFO, INDICES, SOURCES
+
+ICON = Path(__file__).parent / "icon.png"   # navy globe for the green bar
 
 
 # =====================================================================
@@ -739,7 +739,6 @@ STEPS = [("1", "Draw an area", "Use the ■ tool on the map, or open a major eve
 @solara.component
 def Home():
     with solara.Column(style={"max-width": "1300px", "margin": "0 auto", "padding": "24px 8px"}):
-        solara.Image(str(LOGO), width="220px")
         solara.Text("EARTH OBSERVATION · ENVIRONMENTAL MAPPING",
                     style={"letter-spacing": "0.12em", "font-size": "13px", "color": "#0F7A62",
                            "font-weight": "600"})
@@ -801,7 +800,9 @@ def Page():
     solara.Style(CSS)
     solara.Title("GaiaScope")
     with solara.AppBarTitle():
-        solara.Text("GaiaScope")
+        with solara.Row(style={"align-items": "center", "gap": "10px"}):
+            solara.Image(str(ICON), width="56px")
+            solara.Text("GaiaScope")
     with solara.AppBar():
         solara.Switch(label="Dark mode", value=dark)
     with solara.Column():
