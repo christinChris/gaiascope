@@ -696,7 +696,7 @@ GaiaScope is a research and teaching tool, not an official emergency product.
 
 ---
 
-Made by **Christina Lekka** · PhD candidate, Department of Geography,
+Made by **Randall Stephens** · PhD candidate, Department of Geography,
 Harokopio University of Athens.
 """
 
@@ -765,7 +765,7 @@ def Home():
                 with solara.Card(f"{number} · {title}"):
                     solara.Markdown(text)
 
-        solara.Markdown("---\nBuilt by **Christina Lekka** · Harokopio University of Athens  \n"
+        solara.Markdown("---\nBuilt by **Randall Stephens** · Harokopio University of Athens  \n"
                         "Data: Copernicus Sentinel-1 & 2, USGS Landsat 8–9, ESA WorldCover · "
                         "Google Earth Engine")
 
@@ -774,12 +774,13 @@ CSS = """
     background: linear-gradient(90deg, #FFFFFF 0%, #FFFFFF 15%, #020C45 65%, #020C45 100%) !important;
 }
 .gaia-table table { border-collapse: collapse; color: inherit; }
-.theme--dark :is(p, h1, h2, h3, h4, li, td, th, strong, em, code):not(.leaflet-container *) {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
 .gaia-table th, .gaia-table td { padding: 4px 12px; text-align: left; }
 """
-
+DARK_CSS = """
+:is(p, h1, h2, h3, h4, li, td, th, strong, em, code, .solara-markdown):not(.leaflet-container *) {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+"""
 dark   = solara.reactive(False)         # the app starts in light mode
 module = solara.reactive("Home")         # which page is open
 
@@ -797,11 +798,13 @@ def apply_theme():
 def Page():
     solara.use_effect(apply_theme, [dark.value])
     solara.Style(CSS)
+    if dark.value:
+        solara.Style(DARK_CSS)
     solara.Title("GaiaScope")
     with solara.AppBarTitle():
         with solara.Row(style={"align-items": "center", "gap": "10px", "background": "transparent"}):
             solara.Image(str(ICON), width="56px")
-            solara.Text("GaiaScope", style={"color": "#020C45", "font-weight": "600"})
+            solara.Text("GAIASCOPE", style={"color": "#020C45", "font-weight": "600"})
     with solara.AppBar():
         solara.Switch(label="Dark mode", value=dark)
     with solara.Column():
