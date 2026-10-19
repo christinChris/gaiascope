@@ -105,7 +105,7 @@ def take_drawn_area(m, area):
 def date_inputs(label, start, end):
     """Two calendar pickers. The sticky notes keep dates as 'YYYY-MM-DD' text."""
     solara.Text(label, style={"font-weight": "600"})
-    with solara.Row():
+    with solara.Column():
         solara.lab.InputDate(date.fromisoformat(start.value), label="Start",
                              on_value=lambda d: start.set(d.isoformat()),
                              date_format="%Y-%m-%d")
