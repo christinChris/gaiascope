@@ -204,17 +204,15 @@ INDICES.update({
         "reference": "Gitelson, A. A. et al. (2002). Novel algorithms for remote estimation of vegetation "
                      "fraction. Remote Sensing of Environment, 80, 76–87.",
     },
-    
+
 })
 
 # ---------- Order in the menu: grouped by theme ----------
 ORDER = ["NDVI", "GNDVI", "EVI", "SAVI", "OSAVI", "MSAVI", "ARVI", "VARI",   # vegetation
          "NDWI", "MNDWI", "NDMI",                                              # water
-         "NBR", "NBR2",                                                        # fire
          "NDBI", "BSI", "NDSI"]                                                # land and snow
 INDICES = {key: INDICES[key] for key in ORDER}
 
 SOURCES = ("Equations follow the [Index DataBase (IDB)](https://www.indexdatabase.de/db/i.php) "
            "and the [USGS Landsat spectral indices](https://www.usgs.gov/landsat-missions/"
-           "landsat-surface-reflectance-derived-spectral-indices). Only indices that use the six "
-           "bands shared by Sentinel-2 and Landsat 8/9 are included.")
+           "landsat-surface-reflectance-derived-spectral-indices).")
