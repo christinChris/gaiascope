@@ -34,8 +34,12 @@ INDICES = {
         "name": "Normalized Difference Vegetation Index",
         "formula": "(NIR - RED) / (NIR + RED)",
         "min": -0.2, "max": 0.9, "palette": VEG,
-        "about": "Healthy leaves reflect a lot of near-infrared light and absorb red light. "
-                 "The more green vegetation, the higher the NDVI.",
+        "about": "The Normalized Difference Vegetation Index measures the density and photosynthetic "
+                 "vigour of green vegetation. It uses the contrast between strong chlorophyll absorption "
+                 "in the red band and strong mesophyll scattering in the near-infrared. Values range "
+                 "from −1 to +1. Negative values correspond to water, snow or clouds, values near 0 to "
+                 "bare soil or built surfaces, and values above about 0.6 to dense, healthy canopies. "
+                 "Sensitivity declines (saturates) at high leaf area index.",
         "reading": ["< 0: water, snow, clouds",
                     "0 – 0.2: bare soil, rock, built-up",
                     "0.2 – 0.5: sparse vegetation, crops, shrubs",
@@ -46,8 +50,8 @@ INDICES = {
         "name": "Enhanced Vegetation Index",
         "formula": "2.5 * (NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1)",
         "min": -0.2, "max": 0.8, "palette": VEG,
-        "about": "Like NDVI, but corrects for haze and soil background, and does not saturate "
-                 "as quickly over dense forest.",
+        "about": "An advanced vegetation index that improves upon NDVI by minimizing atmospheric distortions and soil background effects,"
+                 "making it particularly valuable in dense forest canopies and high-biomass areas.",
         "reading": ["< 0.1: no vegetation",
                     "0.1 – 0.3: sparse vegetation",
                     "> 0.3: dense vegetation"],
@@ -58,8 +62,8 @@ INDICES = {
         "name": "Soil Adjusted Vegetation Index",
         "formula": "1.5 * (NIR - RED) / (NIR + RED + 0.5)",
         "min": -0.2, "max": 0.8, "palette": VEG,
-        "about": "NDVI with a soil correction factor (L = 0.5). Better where vegetation is sparse "
-                 "and bright soil shows through, as in many Mediterranean areas.",
+        "about": "Specifically designed to reduce soil brightness interference in vegetation analysis,"
+                 "crucial for studies in arid and semi-arid regions where bare soil is frequently visible.",
         "reading": ["< 0.1: bare soil",
                     "0.1 – 0.3: sparse vegetation",
                     "> 0.3: denser vegetation"],
@@ -70,8 +74,8 @@ INDICES = {
         "name": "Normalized Difference Water Index",
         "formula": "(GREEN - NIR) / (GREEN + NIR)",
         "min": -0.6, "max": 0.6, "palette": WATER,
-        "about": "Water reflects green light but absorbs near-infrared. Highlights open water "
-                 "and suppresses vegetation.",
+        "about": "Detects and monitors water bodies by exploiting the strong absorption of NIR by water and high reflectance of green light,"
+                 "useful for water resource management and drought assessment.",
         "reading": ["> 0: open water",
                     "< 0: land and vegetation"],
         "reference": "McFeeters, S. K. (1996). The use of the Normalized Difference Water Index (NDWI) "
@@ -81,7 +85,9 @@ INDICES = {
         "name": "Modified Normalized Difference Water Index",
         "formula": "(GREEN - SWIR1) / (GREEN + SWIR1)",
         "min": -0.6, "max": 0.8, "palette": WATER,
-        "about": "Uses shortwave infrared instead of near-infrared, so built-up areas are not "
+        "about": "An improved water detection index that uses shortwave infrared (SWIR) instead of NIR,"
+                 "to better distinguish water from urban features and vegetation, reducing false positives."
+                 "Uses shortwave infrared instead of near-infrared, so built-up areas are not "
                  "confused with water. Good for water in and near towns.",
         "reading": ["> 0: open water",
                     "< 0: land, built-up, vegetation"],
@@ -101,24 +107,12 @@ INDICES = {
                      "dates of Landsat TM imagery. Remote Sensing of Environment, 80, 385–396. "
                      "(Concept: Gao, B. (1996), Remote Sensing of Environment, 58, 257–266.)",
     },
-    "NBR": {
-        "name": "Normalized Burn Ratio",
-        "formula": "(NIR - SWIR2) / (NIR + SWIR2)",
-        "min": -0.5, "max": 0.8, "palette": list(reversed(BURN)),
-        "about": "Healthy vegetation is bright in near-infrared and dark in SWIR2; burnt areas are "
-                 "the opposite. The index behind BurnScope's dNBR.",
-        "reading": ["< 0.1: burnt or bare",
-                    "0.1 – 0.3: sparse or stressed vegetation",
-                    "> 0.3: healthy vegetation"],
-        "reference": "Key, C. H. & Benson, N. C. (2006). Landscape Assessment (LA). "
-                     "USDA Forest Service, RMRS-GTR-164-CD.",
-    },
-    "NDBI": {
+       "NDBI": {
         "name": "Normalized Difference Built-up Index",
         "formula": "(SWIR1 - NIR) / (SWIR1 + NIR)",
         "min": -0.5, "max": 0.4, "palette": URBAN,
-        "about": "Roofs, roads and bare surfaces reflect more shortwave infrared than near-infrared. "
-                 "Highlights built-up land.",
+        "about": "The NDBI is designed to identify urban areas and human settlements by capitalizing on the "
+                 "high SWIR reflectance of built-up surfaces compared to natural landscapes.",
         "reading": ["> 0: built-up or bare land",
                     "< 0: vegetation and water"],
         "reference": "Zha, Y., Gao, J. & Ni, S. (2003). Use of normalized difference built-up index in "
@@ -128,8 +122,8 @@ INDICES = {
         "name": "Normalized Difference Snow Index",
         "formula": "(GREEN - SWIR1) / (GREEN + SWIR1)",
         "min": -0.4, "max": 1.0, "palette": SNOW,
-        "about": "Snow is bright in green light and dark in shortwave infrared. Same equation as "
-                 "MNDWI, read for snow instead of water.",
+        "about": "Specifically designed for snow cover mapping by utilizing snow’s high reflectance in green wavelengths "
+                 "and strong absorption in SWIR bands.",
         "reading": ["> 0.4: snow (commonly used threshold)",
                     "< 0.4: no snow"],
         "reference": "Hall, D. K., Riggs, G. A. & Salomonson, V. V. (1995). Development of methods for "
@@ -190,8 +184,8 @@ INDICES.update({
         "name": "Atmospherically Resistant Vegetation Index",
         "formula": "(NIR - (2 * RED - BLUE)) / (NIR + (2 * RED - BLUE))",
         "min": -0.2, "max": 0.9, "palette": VEG,
-        "about": "Uses the blue band to correct red for haze and smoke. A good choice in hazy "
-                 "air, for example during wildfire season.",
+        "about": "Uses the blue band to correct red for haze and smoke. A robust vegetation index that incorporates blue band data to compensate for "
+                 "atmospheric scattering effects, particularly useful in polluted or hazy conditions.",
         "reading": ["< 0.2: little or no vegetation",
                     "0.2 – 0.5: moderate vegetation",
                     "> 0.5: dense vegetation"],
@@ -210,16 +204,7 @@ INDICES.update({
         "reference": "Gitelson, A. A. et al. (2002). Novel algorithms for remote estimation of vegetation "
                      "fraction. Remote Sensing of Environment, 80, 76–87.",
     },
-    "NBR2": {
-        "name": "Normalized Burn Ratio 2",
-        "formula": "(SWIR1 - SWIR2) / (SWIR1 + SWIR2)",
-        "min": -0.1, "max": 0.4, "palette": list(reversed(DRY)),
-        "about": "Uses the two shortwave infrared bands. Sensitive to water in soil and vegetation, "
-                 "and helps follow recovery after fire.",
-        "reading": ["Lower: drier surfaces, fresh burns",
-                    "Higher: moister soil and vegetation"],
-        "reference": "USGS (2017). Landsat Surface Reflectance-Derived Spectral Indices. Product Guide.",
-    },
+    
 })
 
 # ---------- Order in the menu: grouped by theme ----------
@@ -229,8 +214,7 @@ ORDER = ["NDVI", "GNDVI", "EVI", "SAVI", "OSAVI", "MSAVI", "ARVI", "VARI",   # v
          "NDBI", "BSI", "NDSI"]                                                # land and snow
 INDICES = {key: INDICES[key] for key in ORDER}
 
-SOURCES = ("Equations follow the [Index DataBase (IDB)](https://www.indexdatabase.de/db/i.php), "
-           "[Awesome Spectral Indices](https://github.com/awesome-spectral-indices/awesome-spectral-indices) "
+SOURCES = ("Equations follow the [Index DataBase (IDB)](https://www.indexdatabase.de/db/i.php) "
            "and the [USGS Landsat spectral indices](https://www.usgs.gov/landsat-missions/"
            "landsat-surface-reflectance-derived-spectral-indices). Only indices that use the six "
            "bands shared by Sentinel-2 and Landsat 8/9 are included.")
