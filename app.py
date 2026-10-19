@@ -796,6 +796,10 @@ CSS = """
 }
 .gaia-table table { border-collapse: collapse; color: inherit; }
 .gaia-table th, .gaia-table td { padding: 4px 12px; text-align: left; }
+.v-picker, .v-date-picker {
+    transform: scale(0.8);
+    transform-origin: top left;
+}
 """
 DARK_CSS = """
 :is(p, h1, h2, h3, h4, li, td, th, strong, em, code, .solara-markdown):not(.leaflet-container *) {
