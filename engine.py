@@ -423,7 +423,11 @@ def indexscope(aoi, sensor, index, start, end):
     idx = img.expression(spec["formula"], {b: img.select(b) for b in GENERIC}).rename(index)
 
     # 3. Numbers: mean and percentiles in ONE reduction, plus a sample for the histogram
-    scale = 20 if sensor == "Sentinel-2" else 30
+    uses_swir = "SWIR" in spec["formula"]                  # SWIR bands are 20 m on Sentinel-2
+    if sensor == "Sentinel-2":
+        scale = 20 if uses_swir else 10
+    else:
+        scale = 30                                          # Landsat: all bands 30 m
     reducer = ee.Reducer.mean().combine(ee.Reducer.percentile([5, 50, 95]), sharedInputs=True)
     stats = idx.reduceRegion(reducer=reducer, geometry=aoi, scale=scale,
                              maxPixels=1e10, tileScale=4).getInfo()
