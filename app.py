@@ -797,8 +797,7 @@ CSS = """
 .gaia-table table { border-collapse: collapse; color: inherit; }
 .gaia-table th, .gaia-table td { padding: 4px 12px; text-align: left; }
 .v-picker, .v-date-picker {
-    transform: scale(0.8);
-    transform-origin: top left;
+    zoom: 0.8;
 }
 """
 DARK_CSS = """
