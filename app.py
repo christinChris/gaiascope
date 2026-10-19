@@ -12,12 +12,14 @@ ee.Initialize(project=os.environ.get("EE_PROJECT", "ee-christilekka"))
 
 import solara
 import geemap
+import ipywidgets
 import ipyleaflet
 from pathlib import Path
 
 import engine as eng
 from events import FIRE_EVENTS, FLOOD_EVENTS
 from indices import SENSORS, SENSOR_INFO, INDICES, SOURCES
+from datetime import date
 
 ICON = Path(__file__).parent / "icon.png"   # navy globe for the green bar
 
@@ -74,8 +76,23 @@ def add_outline(m, geom):
     line = ee.Image().byte().paint(ee.FeatureCollection([ee.Feature(geom)]), 1, 2)
     m.addLayer(line, {"palette": ["FFFFFF"]}, "Study area")
 
+def colorbar(m, vis, title, low=None, high=None):
+    """A colour bar drawn with HTML: title, colour ramp, min and max labels."""
+    stops = ", ".join(vis["palette"])
+    low = low or f"{vis['min']}"
+    high = high or f"{vis['max']}"
+    html = (
+        '<div style="background:white;color:#222;padding:8px 10px;border-radius:6px;'
+        'font:12px sans-serif;min-width:200px;box-shadow:0 1px 4px rgba(0,0,0,.3)">'
+        f'<div style="font-weight:600;margin-bottom:6px">{title}</div>'
+        f'<div style="height:12px;border-radius:3px;background:linear-gradient(90deg, {stops})"></div>'
+        '<div style="display:flex;justify-content:space-between;margin-top:3px">'
+        f'<span>{low}</span><span>{high}</span></div></div>'
+    )
+    m.add_control(ipyleaflet.WidgetControl(widget=ipywidgets.HTML(html), position="bottomright"))
 
-def use_drawn_area(m, area):
+
+def take_drawn_area(m, area):
     """If the user drew a box, copy it into `area` and clear the drawing."""
     roi = m.user_roi
     if roi is None:
@@ -86,10 +103,15 @@ def use_drawn_area(m, area):
 
 
 def date_inputs(label, start, end):
+    """Two calendar pickers. The sticky notes keep dates as 'YYYY-MM-DD' text."""
     solara.Text(label, style={"font-weight": "600"})
     with solara.Row():
-        solara.InputText("Start", value=start)
-        solara.InputText("End", value=end)
+        solara.lab.InputDate(date.fromisoformat(start.value), label="Start",
+                             on_value=lambda d: start.set(d.isoformat()),
+                             date_format="%Y-%m-%d")
+        solara.lab.InputDate(date.fromisoformat(end.value), label="End",
+                             on_value=lambda d: end.set(d.isoformat()),
+                             date_format="%Y-%m-%d")
 
 
 def event_info(ev):
@@ -214,7 +236,7 @@ def BurnScope():
             b_status.value = f"⚠️ {e}"
 
     def analyze():
-        use_drawn_area(m, b_area)
+        take_drawn_area(m, b_area)
         in_background(b_status, run, b_area.value, (b_b_start.value, b_b_end.value),
                       (b_a_start.value, b_a_end.value), False)
 
@@ -290,7 +312,7 @@ f_view     = solara.reactive("Map")
 def flood_map():
     m, base = new_map(center=(39.5, 22.35), zoom=9)
     base.url = BASEMAPS[f_basemap.value]
-    m.add_legend(title="FloodScope", legend_dict={"Flooded (new water)": FLOOD_COLOR},
+    m.add_legend(title="FloodScope", legend_dict={"Flooded": FLOOD_COLOR},
                  position="bottomright")
     r = f_result.value
     if r is not None:
@@ -325,7 +347,7 @@ def FloodScope():
             f_status.value = f"⚠️ {e}"
 
     def analyze():
-        use_drawn_area(m, f_area)
+        take_drawn_area(m, f_area)
         in_background(f_status, run, f_area.value, (f_b_start.value, f_b_end.value),
                       (f_a_start.value, f_a_end.value), False)
 
@@ -396,7 +418,7 @@ d_view     = solara.reactive("Map")
 def drought_map():
     m, base = new_map(center=(39.5, 22.35), zoom=9)
     base.url = BASEMAPS[d_basemap.value]
-    m.add_colorbar(vis_params=TVDI_VIS, label="TVDI (0 wet → 1 dry)", position="bottomright")
+    colorbar(m, TVDI_VIS, "TVDI · dryness", low="0 · wet", high="1 · dry")    
     r = d_result.value
     if r is not None:
         add_swipe(m, r["image"], L_TRUE, r["tvdi"], TVDI_VIS,
@@ -425,7 +447,7 @@ def DroughtScope():
             d_status.value = f"⚠️ {e}"
 
     def analyze():
-        use_drawn_area(m, d_area)
+        take_drawn_area(m, d_area)
         in_background(d_status, run)
 
     def clear_area():
@@ -498,8 +520,7 @@ def index_map():
         vis = index_vis(r["key"])
         add_swipe(m, r["image"], RGB_VIS, r["index"], vis,
                   f"{r['sensor']} · true colour", r["key"])
-        m.add_colorbar(vis_params=vis, label=f"{r['key']} · {INDICES[r['key']]['name']}",
-                       position="bottomright")
+        colorbar(m, vis, f"{r['key']} · {INDICES[r['key']]['name']}")
         add_outline(m, r["area"])
         fit_view(m, r["box"])
     return m, base
@@ -535,7 +556,7 @@ def IndexScope():
             i_status.value = f"⚠️ {e}"
 
     def analyze():
-        use_drawn_area(m, i_area)
+        take_drawn_area(m, i_area)
         in_background(i_status, run, i_area.value, i_sensor.value, i_index.value,
                       i_start.value, i_end.value)
 

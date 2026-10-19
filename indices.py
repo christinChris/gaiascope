@@ -138,7 +138,7 @@ INDICES = {
     "BSI": {
         "name": "Bare Soil Index",
         "formula": "((SWIR1 + RED) - (NIR + BLUE)) / ((SWIR1 + RED) + (NIR + BLUE))",
-        "min": -0.4, "max": 0.4, "palette": DRY,
+        "min": -0.4, "max": 0.4,         "palette": ["#1A9850", "#91CF60", "#D9EF8B", "#FEE08B", "#D8B365", "#8C510A"],
         "about": "Combines four bands to separate bare soil from vegetation. High values show "
                  "exposed soil, e.g. ploughed fields, quarries or burnt land.",
         "reading": ["> 0: bare soil",
