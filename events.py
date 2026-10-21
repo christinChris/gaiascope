@@ -86,6 +86,56 @@ FIRE_EVENTS = {
                   "and spread across the northern Peloponnese.",
         "source": "https://reliefweb.int/report/greece/greece-wildfire-update-greek-civil-protection-copernicus-emsr-greek-government-jrc-effis-media-echo-daily-flash-03-october-2024",
     },
+    # ---------- 2025 ----------
+    "Chios · North Aegean (Jun 2025)": {
+        "before": ("2025-06-01", "2025-06-20"),
+        "after":  ("2025-07-01", "2025-07-20"),
+        "bbox":   [25.90, 38.20, 26.15, 38.42],
+        "info":   "Three wildfires started on Chios on 22 June 2025 and burned about 4,000 ha, "
+                  "reaching villages such as Palaia Fokaia and Thymiana.",
+        "source": "https://mapping.emergency.copernicus.eu/news/wildfires-on-chios-island-greece/",
+    },
+    "Kythira · Attica islands (Jul 2025)": {
+        "before": ("2025-07-05", "2025-07-24"),
+        "after":  ("2025-08-05", "2025-08-25"),
+        "bbox":   [22.90, 36.13, 23.12, 36.38],
+        "info":   "A wildfire that broke out on 26 July 2025 near Pitsinades burned a large part of Kythira, "
+                  "about 10,900 ha according to Copernicus data.",
+        "source": "https://www.copernicus.eu/en/media/image-day-gallery/wildfire-island-kythira-greece",
+    },
+    "Western Achaia · Patras (Aug 2025)": {
+        "before": ("2025-07-25", "2025-08-10"),
+        "after":  ("2025-08-20", "2025-09-10"),
+        "bbox":   [21.45, 38.05, 21.75, 38.25],
+        "info":   "During the August 2025 heatwave a wildfire started on 12 August near Flogeraika in western Achaia "
+                  "and spread towards the outskirts of Patras, burning homes and factories.",
+        "source": "https://greekreporter.com/2025/08/13/greece-ablaze-wildfires-peloponnese-epirus-and-chios/",
+    },
+    # ---------- 2026 ----------
+    "Rethymno · Crete (Jul 2026)": {
+        "before": ("2026-07-10", "2026-07-27"),
+        "after":  ("2026-08-08", "2026-08-31"),
+        "bbox":   [24.30, 35.10, 24.60, 35.30],
+        "info":   "A wildfire that started on 29 July 2026 in southern Rethymno spread near Krya Vrysi, Agia Paraskevi "
+                  "and Preveli, burning about 4,500 ha and forcing about 8,000 evacuations.",
+        "source": "https://greekcitytimes.com/2026/07/31/greek-wildfires-rethymno-xironormi-argolida-july-2026/",
+    },
+    "Porto Germeno – Psatha · W. Attica (Jul 2026)": {
+        "before": ("2026-07-10", "2026-07-29"),
+        "after":  ("2026-08-08", "2026-08-31"),
+        "bbox":   [23.10, 37.98, 23.45, 38.22],
+        "info":   "A wind-driven wildfire that began on 31 July 2026 near Porto Germeno and Psatha, on the Gulf of Corinth, "
+                  "burned more than 10,000 ha across western Attica and Boeotia (Copernicus EMSR909).",
+        "source": "https://eu-space.europa.eu/components/earth-observation-copernicus/image-of-the-day/wildfires-burn-more-10000-hectares-greece",
+    },
+    "Achaia · Western Greece (Jul 2026)": {
+        "before": ("2026-07-10", "2026-07-29"),
+        "after":  ("2026-08-08", "2026-08-31"),
+        "bbox":   [21.82, 38.20, 22.10, 38.38],
+        "info":   "A wildfire started on 31 July 2026 about 20 km east-northeast of Patras; villages including Aravonitsa "
+                  "and Sinania were evacuated (Copernicus EMSR910).",
+        "source": "https://mapping.emergency.copernicus.eu/news/wildfire-in-achaia-greece-emsr910/",
+    },
 }
 
 # ---------- 🌊 Floods (FloodScope) ----------
