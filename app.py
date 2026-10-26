@@ -215,9 +215,8 @@ def BurnScope():
 
     def run(geom, before_dates, after_dates, event):
         try:
-            grown = 0
-            if not event:                                # event boxes are already sized
-                geom, grown = eng.fit_area(geom, before_dates, after_dates, b_thr.value, tries=2)
+            # every box grows until the whole scar fits (events and your own)
+            geom, grown = eng.fit_area(geom, before_dates, after_dates, b_thr.value, tries=2)
             r = eng.burnscope(geom, before_dates, after_dates, b_thr.value)
             r["area"], r["event"] = geom, event
             r["box"] = box_of(geom)
@@ -718,7 +717,7 @@ GaiaScope is a research and teaching tool, not an official emergency product.
 ---
 
 Made by **Randall Stephens** · PhD candidate, Department of Geography,
-Harokopio University of Athens.
+HUA.
 """
 
 

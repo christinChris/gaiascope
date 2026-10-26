@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use GaiaScope in your research or teaching, please cite it as below."
+title: "GaiaScope: a web application for mapping wildfires, floods and drought from satellite data"
+type: software
+authors:
+  - family-names: "Lekka"
+    given-names: "Christina"
+    affiliation: "Department of Geography, Harokopio University of Athens"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   <- remove the # and add your ORCID if you have one
+version: "1.0.0"
+date-released: "2026-10-20"   # <- change to the day you publish the release
+# doi: "10.5281/zenodo.0000000"   <- remove the # and paste your Zenodo DOI once you have it
+repository-code: "https://github.com/christinChris/gaiascope"
+license-url: "https://polyformproject.org/licenses/noncommercial/1.0.0"
+keywords:
+  - remote sensing
+  - Google Earth Engine
+  - wildfire
+  - burn severity
+  - flood mapping
+  - drought
+  - TVDI
+  - spectral indices
+  - Sentinel-1
+  - Sentinel-2
+  - Landsat
