@@ -90,12 +90,7 @@ You can also click **"Cite this repository"** on the right-hand side of this pag
 
 ## Licence
 
-GaiaScope is free to use for **research, teaching and study**, under the [PolyForm Noncommercial License 1.0.0](LICENSE):
-
-- ✅ Use, run, modify and share it for research, education and personal study.
-- ✅ Universities, schools, public research bodies and non-profit organisations may use it freely.
-- 📌 Keep the copyright notice and cite GaiaScope in work that uses it.
-- ❌ Not for commercial use.
+GaiaScope is free to use for **research, teaching and study**, under the [PolyForm Noncommercial License 1.0.0](LICENSE).
 
 Copyright © 2026 Christina Lekka.
 
