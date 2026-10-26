@@ -17,12 +17,12 @@ GaiaScope turns free satellite data into maps and statistics of **wildfires, flo
 
 ## Modules
 
-| Module | Question | Satellite data | Method |
-| --- | --- | --- | --- |
-| 🔥 **BurnScope** | How badly did a fire burn? | Sentinel-2 L2A | dNBR with USGS burn-severity classes |
-| 🌊 **FloodScope** | Which land went under water? | Sentinel-1 SAR (VV) | Before/after backscatter change detection |
-| ☀️ **DroughtScope** | How dry is the land surface? | Landsat 8/9 (optical + thermal) | TVDI from the Ts/VI triangle |
-| 🌿 **IndexScope** | What does a spectral index show here? | Sentinel-2 or Landsat 8/9 | 14 indices (NDVI, EVI, SAVI, NDWI, MNDWI, NDMI, NDBI, BSI, NDSI …) |
+| Module | Satellite data | Method |
+| --- | --- | --- |
+| 🔥 **BurnScope** | Sentinel-2 L2A | dNBR with USGS burn-severity classes |
+| 🌊 **FloodScope** | Sentinel-1 SAR (VV) | Before/after backscatter change detection |
+| ☀️ **DroughtScope** | Landsat 8/9 (optical + thermal) | TVDI from the Ts/VI triangle |
+| 🌿 **IndexScope** | Sentinel-2 or Landsat 8/9 | 14 indices (NDVI, EVI, SAVI, NDWI, MNDWI, NDMI, NDBI, BSI, NDSI …) |
 
 Every module reports the affected area in km² and breaks it down by land cover (ESA WorldCover 2021), with tables and charts.
 
